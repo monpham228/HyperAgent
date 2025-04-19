@@ -1,6 +1,6 @@
 {
   "name": "@hyperbrowser/agent",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Hyperbrowsers Web Agent",
   "author": "",
   "main": "dist/index.js",

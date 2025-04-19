@@ -8,7 +8,6 @@ export const CompleteAction = z
       .describe("Whether the task was completed successfully."),
     text: z
       .string()
-      .optional()
       .nullable()
       .describe(
         "The text to complete the task with, make this answer the ultimate goal of the task. Be sure to include all the information requested in the task in explicit detail."
