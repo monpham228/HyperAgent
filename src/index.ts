@@ -1,4 +1,4 @@
-import { HyperAgent as HyperAgentClass } from "./agent";
+import { HyperAgent } from "./agent";
 
 import {
   HyperbrowserProvider,
@@ -7,8 +7,9 @@ import {
 
 import { TaskStatus } from "./types/agent/types";
 
-export const HyperAgent = HyperAgentClass;
-export default HyperAgentClass;
+// Export the class directly for both named and default exports
+export { HyperAgent };
+export default HyperAgent;
 
 export { HyperbrowserProvider, LocalBrowserProvider, TaskStatus };
 

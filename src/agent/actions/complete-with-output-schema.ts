@@ -11,6 +11,7 @@ export const generateCompleteActionWithOutputDefinition = (
         .describe("Whether the task was completed successfully."),
       outputSchema: outputSchema
         .optional()
+        .nullable()
         .describe(
           "The output model to return the response in. Given the previous data, try your best to fit the final response into the given schema."
         ),

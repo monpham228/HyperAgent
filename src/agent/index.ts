@@ -75,10 +75,6 @@ export class HyperAgent {
       this.llm = params.llm;
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.log("GEMINI_API_KEY not provided. PDF analysis will not be available.")
-    }
-
     if (params.outputSchema) {
       this.registerAction(
         generateCompleteActionWithOutputDefinition(params.outputSchema)
