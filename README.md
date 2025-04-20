@@ -7,13 +7,16 @@
 
   <p align="center">
     <a href="https://www.npmjs.com/package/@hyperbrowser/agent">
-      <img src="https://img.shields.io/npm/v/@hyperbrowser/agent" alt="npm version" />
+      <img src="https://img.shields.io/npm/v/@hyperbrowser/agent?style=flat-square" alt="npm version" />
     </a>
     <a href="https://github.com/hyperbrowserai/hyperagent/blob/main/LICENSE">
-      <img src="https://img.shields.io/npm/l/@hyperbrowser/agent" alt="license" />
+      <img src="https://img.shields.io/npm/l/@hyperbrowser/agent?style=flat-square" alt="license" />
     </a>
-    <a href="https://github.com/hyperbrowserai/hyperagent/stargazers">
-      <img src="https://img.shields.io/github/stars/yourusername/hyperagent" alt="GitHub stars" />
+    <a href="https://discord.gg/zsYzsgVRjh" style="text-decoration:none;">
+      <img alt="Discord" src="https://img.shields.io/discord/1313014141165764619?style=flat-square&color=blue">
+    </a>
+    <a href="https://x.com/SukhaniShri">
+      <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/SukhaniShri?style=social">
     </a>
   </p>
 </div>
@@ -28,7 +31,6 @@ Hyperagent is a powerful browser automation framework that combines the precisio
 - 🎯 **Smart Interactions**: Context-aware element interaction and form filling
 - 📊 **Structured Data Extraction**: Extract data in your preferred schema
 - ⚡ **Async Task Management**: Start, pause, resume, and cancel tasks at will
-- 🔄 **Flexible LLM Support**: Works with OpenAI's GPT-4 and other LLM providers
 - 🛠️ **Extensible Architecture**: Add custom actions and behaviors
 
 ## Quick Start
