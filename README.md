@@ -70,7 +70,7 @@ await agent.closeAgent();
 
 ## Cloud
 
-You can scale HyperAgent with cloud headless browsers using HyperBrowser
+You can scale HyperAgent with cloud headless browsers using Hyperbrowser
 
 1. Get a free api key from [Hyperbrowser](https://app.hyperbrowser.ai/)
 2. Add it to your env as `HYPERBROWSER_API_KEY`
@@ -86,6 +86,7 @@ const response = await agent.executeTask(
 );
 
 console.log(response);
+await agent.closeAgent();
 ```
 
 ## Usage Guide
@@ -174,7 +175,7 @@ Hyperagent supports multiple LLM providers. A provider can be anything that exte
 const agent = new HyperAgent({
   llm: new ChatOpenAI({
     openAIApiKey: process.env.OPENAI_API_KEY,
-    modelName: "gpt-4",
+    modelName: "gpt-4o",
   }),
 });
 
@@ -182,16 +183,17 @@ const agent = new HyperAgent({
 const agent = new HyperAgent({
   llm: new ChatAnthropic({
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-    modelName: "claude-2",
+    modelName: "claude-3-7-sonnet-latest",
   }),
 });
 ```
 
 ### MCP Support
 
-HyperAgent functions as a fully functional MCP client.
+HyperAgent functions as a fully functional MCP client. For best results, we recommend using
+`gpt-4o` as your LLM.
 
-Here is an example which reads from wikipedia, and inserts information into a google sheet using the composio Google Sheet MCP.
+Here is an example which reads from wikipedia, and inserts information into a google sheet using the composio Google Sheet MCP. For the full example, see [here](https://github.com/hyperbrowserai/HyperAgent/tree/main/examples/mcp/google-sheets/most-populated-states.ts)
 
 ```typescript
 const agent = new HyperAgent({
@@ -221,14 +223,15 @@ const response = await agent.executeTask(
 );
 
 console.log(response);
+await agent.closeAgent();
 ```
 
 ### Custom Actions
 
-HyperAgent's capabilities can be extended with custom actions. Custom actions require 3 things
+HyperAgent's capabilities can be extended with custom actions. Custom actions require 3 things:
 
 - type: Name of the action. Should be something descriptive about the action.
-- actionParams: A zod object describing the parameters that the action may consume
+- actionParams: A zod object describing the parameters that the action may consume.
 - run: A function that takes in a context, and the params for the action and produces a result based on the params.
 
 Here is an example that performs a search using Exa
@@ -291,9 +294,10 @@ const response = await agent.executeTask(
 );
 
 console.log(response);
+await agent.closeAgent();
 ```
 
-A list of all parameters supported can be seen on our [docs](https://docs.hyperbrowser.ai/reference/sdks/node/sessions)
+A list of all parameters supported can be seen in our [docs](https://docs.hyperbrowser.ai/reference/api-reference/sessions#post-api-session)
 
 ## Contributing
 
