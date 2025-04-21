@@ -130,6 +130,7 @@ console.log(page2Response.output);
 
 // Get all active pages
 const pages = await agent.getPages();
+await agent.closeAgent();
 ```
 
 ## Customization
@@ -139,17 +140,21 @@ const pages = await agent.getPages();
 HyperAgent can extract data in a specified schema. The schema can be passed in at a per-task level
 
 ```typescript
+import { z } from "zod";
+
 const agent = new HyperAgent();
 const agentRepsone = await agent.executeTask(
   "Navigate to imdb.com, search for 'The Matrix', and extract the director, release year, and rating",
-  outputSchema: z.object({
-    director: z.string().describe("The name of the movie director"),
-    releaseYear: z.number().describe("The year the movie was released"),
-    rating: z.string().describe("The IMDb rating of the movie"),
-  })
-)
-await agent.closeAgent()
-console.log(result.output)
+  {
+    outputSchema: z.object({
+      director: z.string().describe("The name of the movie director"),
+      releaseYear: z.number().describe("The year the movie was released"),
+      rating: z.string().describe("The IMDb rating of the movie"),
+    }),
+  }
+);
+console.log(agentRepsone.output);
+await agent.closeAgent();
 ```
 
 ```bash
