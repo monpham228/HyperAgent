@@ -104,20 +104,28 @@ const pages = await agent.getPages();
 
 ### Output Schema Definition
 
-Define structured output formats for your tasks:
+HyperAgent can extract data in a specified schema. The schema can be passed in at a per-task level
 
 ```typescript
-const agent = new HyperAgent({
-  outputSchema: {
-    type: "object",
-    properties: {
-      title: { type: "string" },
-      price: { type: "number" },
-      availability: { type: "boolean" },
-    },
-    required: ["title", "price"],
-  },
-});
+const agent = new HyperAgent();
+const agentRepsone = await agent.executeTask(
+  "Navigate to imdb.com, search for 'The Matrix', and extract the director, release year, and rating",
+  outputSchema: z.object({
+    director: z.string().describe("The name of the movie director"),
+    releaseYear: z.number().describe("The year the movie was released"),
+    rating: z.string().describe("The IMDb rating of the movie"),
+  })
+)
+await agent.closeAgent()
+console.log(result.output)
+```
+
+```bash
+{
+  "director": "Lana Wachowski, Lilly Wachowski",
+  "releaseYear": 1999,
+  "rating": "8.7/10"
+}
 ```
 
 ### Using Different LLM Providers

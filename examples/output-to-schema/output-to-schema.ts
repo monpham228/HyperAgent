@@ -32,7 +32,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { z } from "zod";
 
 const TASK =
-  "Find the initial release date for Guardians of the Galaxy Vol. 3 the movie";
+  "Navigate to imdb.com, search for 'The Matrix', and extract the director, release year, and rating";
 
 async function runEval() {
   const llm = new ChatOpenAI({
@@ -58,8 +58,9 @@ async function runEval() {
       console.log(chalk.cyan.bold("===============") + "\n");
     },
     outputSchema: z.object({
-      releaseDate: z.string().describe("Release date in YYYY-MM-DD format"),
-      titleName: z.string(),
+      director: z.string().describe("The name of the movie director"),
+      releaseYear: z.number().describe("The year the movie was released"),
+      rating: z.string().describe("The IMDb rating of the movie"),
     }),
   });
   await agent.closeAgent();
