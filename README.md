@@ -23,15 +23,13 @@
 
 ## Overview
 
-Hyperagent is a powerful browser automation framework that combines the precision of Playwright with the intelligence of Large Language Models (LLMs). It enables developers to create sophisticated web automation scripts that can understand context, adapt to changes, and handle complex interactions just like a human would.
+Hyperagent is Playwright supercharged with AI.
 
-### Key Features
+### Features
 
-- 🧠 **AI-Powered Navigation**: Intelligent web navigation using state-of-the-art LLMs
-- 🎯 **Smart Interactions**: Context-aware element interaction and form filling
-- 📊 **Structured Data Extraction**: Extract data in your preferred schema
-- ⚡ **Async Task Management**: Start, pause, resume, and cancel tasks at will
-- 🛠️ **Extensible Architecture**: Add custom actions and behaviors
+- 🤖 **AI Commands**: Simple APIs like `page.ai()` and `executeTask()` for any AI automation
+- 🛡️ **Stealth Mode**: Built-in patches to avoid being detcted
+- ⚡ **Fallback to Regular Playwright**: Use regular Playwright when AI isn't needed
 
 ## Quick Start
 
