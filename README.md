@@ -143,7 +143,7 @@ HyperAgent can extract data in a specified schema. The schema can be passed in a
 import { z } from "zod";
 
 const agent = new HyperAgent();
-const agentRepsone = await agent.executeTask(
+const agentResponse = await agent.executeTask(
   "Navigate to imdb.com, search for 'The Matrix', and extract the director, release year, and rating",
   {
     outputSchema: z.object({
@@ -153,7 +153,7 @@ const agentRepsone = await agent.executeTask(
     }),
   }
 );
-console.log(agentRepsone.output);
+console.log(agentResponse.output);
 await agent.closeAgent();
 ```
 
