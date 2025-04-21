@@ -63,5 +63,5 @@ export interface HyperAgentConfig {
   llm?: BaseChatModel;
 
   hyperbrowserConfig?: ConstructorParameters<typeof HyperbrowserProvider>[0];
-  localOptions?: ConstructorParameters<typeof LocalBrowserProvider>[0];
+  localConfig?: ConstructorParameters<typeof LocalBrowserProvider>[0];
 }
