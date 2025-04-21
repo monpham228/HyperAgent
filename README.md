@@ -15,8 +15,8 @@
     <a href="https://discord.gg/zsYzsgVRjh" style="text-decoration:none;">
       <img alt="Discord" src="https://img.shields.io/discord/1313014141165764619?style=flat-square&color=blue">
     </a>
-    <a href="https://x.com/SukhaniShri">
-      <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/SukhaniShri?style=social">
+    <a href="https://x.com/AkshayShekhaw12">
+      <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/AkshayShekhaw12?style=social">
     </a>
   </p>
 </div>
