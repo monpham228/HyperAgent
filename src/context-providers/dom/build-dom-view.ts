@@ -6,7 +6,7 @@ import { DOMStateRaw } from "./types";
 
 export const buildDomView = (): DOMStateRaw => {
   const interactiveElements = findInteractiveElements();
-  let index = 0;
+  let index = 1;
   const container = document.getElementById("hb-highlight-container");
   if (container) {
     container.remove();

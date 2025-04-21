@@ -6,7 +6,7 @@ export const getDom = async (page: Page): Promise<DOMState | null> => {
   const result = (await page.evaluate(buildDomViewJs)) as DOMStateRaw;
   const idxToXPath = new Map<number, string>();
   for (const element of result.elements) {
-    if (element.highlightIndex && element.xPath) {
+    if (element.highlightIndex !== undefined && element.xPath) {
       idxToXPath.set(element.highlightIndex, element.xPath);
     }
   }
