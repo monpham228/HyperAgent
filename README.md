@@ -68,6 +68,26 @@ console.log(result.output);
 await agent.closeAgent();
 ```
 
+## Cloud
+
+You can scale HyperAgent with cloud headless browsers using HyperBrowser
+
+1. Get a free api key from [Hyperbrowser](https://app.hyperbrowser.ai/)
+2. Add it to your env as `HYPERBROWSER_API_KEY`
+3. Set your `browserProvider` to `"Hyperbrowser"`
+
+```typescript
+const agent = new HyperAgent({
+  browserProvider: "Hyperbrowser",
+});
+
+const response = await agent.executeTask(
+  "Go to hackernews, and list me the 5 most recent article titles"
+);
+
+console.log(response);
+```
+
 ## Usage Guide
 
 ### Task Execution Modes
@@ -242,27 +262,6 @@ const agent = new HyperAgent({
   "Search about the news for today in New York",
   customActions: [RunSearchActionDefinition],
 });
-```
-
-## Cloud Support
-
-HyperAgent is built with cloud deployments in mind, utilising Hyperbrowser to offer the best environment for running web agents.
-
-Configuring HyperAgent for web deployments can be done simply using
-
-```typescript
-const agent = new HyperAgent({
-  llm: llm,
-  debug: true,
-  // Set browserProvider to "Hyperbrowser"
-  browserProvider: "Hyperbrowser",
-});
-
-const response = await agent.executeTask(
-  "Go to hackernews, and list me the 5 most recent article titles"
-);
-
-console.log(response);
 ```
 
 ### Further Configuring Hyperbrowser
