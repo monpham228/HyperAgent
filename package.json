@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@google/genai": "^0.8.0",
-    "@hyperbrowser/sdk": "^0.43.0",
+    "@hyperbrowser/sdk": "^0.46.0",
     "@inquirer/prompts": "^7.4.1",
     "@langchain/core": "^0.3.43",
     "@modelcontextprotocol/sdk": "^1.9.0",

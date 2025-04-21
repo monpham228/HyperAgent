@@ -261,10 +261,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.2.tgz#1860473de7dfa1546767448f333db80cb0ff2161"
   integrity sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==
 
-"@hyperbrowser/sdk@^0.43.0":
-  version "0.43.0"
-  resolved "https://registry.yarnpkg.com/@hyperbrowser/sdk/-/sdk-0.43.0.tgz#f1b1737faef04e7d58158f95c9ccaf766dcbc959"
-  integrity sha512-CU8PpXjXdookOcVAvViSHmWumXRtkNA3HW23IT7cGdhsHV0wFO96RTa6N/hkwjucaWP87LNJDSgE54I5NH9pZA==
+"@hyperbrowser/sdk@^0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@hyperbrowser/sdk/-/sdk-0.46.0.tgz#1937b2855342661f2dca6535792bd022858d1e8a"
+  integrity sha512-LItlKUdaKeTIwYu1DeHNAuA88ZbAGoX4yLUsmSQd2jEanHuYb2qW5ELQJPggyQpUO9KG9KIFK9yaf+XJsA+krQ==
   dependencies:
     form-data "^4.0.1"
     node-fetch "2.7.0"
