@@ -24,11 +24,11 @@ export const AgentOutputFn = (
     actions: z.array(actionsSchema),
   });
 
-export type AgentOutputType = z.infer<ReturnType<typeof AgentOutputFn>>;
+export type AgentOutput = z.infer<ReturnType<typeof AgentOutputFn>>;
 
 export interface AgentStep {
   idx: number;
-  agentOutput: AgentOutputType;
+  agentOutput: AgentOutput;
   actionOutputs: ActionOutput[];
 }
 
@@ -38,7 +38,7 @@ export interface TaskParams {
   outputSchema?: z.AnyZodObject;
   onStep?: (step: AgentStep) => void;
   onComplete?: (output: TaskOutput) => void;
-  debugOnAgentOutput?: (step: AgentOutputType) => void;
+  debugOnAgentOutput?: (step: AgentOutput) => void;
 }
 
 export interface TaskOutput {

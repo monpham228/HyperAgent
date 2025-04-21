@@ -11,7 +11,7 @@ import { zipWith } from "lodash";
 import { HyperAgent } from "@/agent";
 import {
   ActionType,
-  AgentOutputType,
+  AgentOutput,
   AgentStep,
   Task,
   TaskOutput,
@@ -113,7 +113,7 @@ program
         process.stdin.resume();
       };
 
-      const debugAgentOutput = (params: AgentOutputType) => {
+      const debugAgentOutput = (params: AgentOutput) => {
         const actions = params.actions.map((action, index, array) =>
           index < array.length - 1
             ? `  ├── [${chalk.yellow(action.type)}] ${browser.pprintAction(action as ActionType)}`

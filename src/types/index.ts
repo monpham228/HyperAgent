@@ -10,7 +10,7 @@ import {
 // Agent Types
 import {
   AgentOutputFn,
-  AgentOutputType,
+  AgentOutput,
   AgentStep,
   TaskParams,
   TaskOutput,
@@ -37,7 +37,7 @@ export {
 
   // Agent Types
   AgentOutputFn,
-  AgentOutputType,
+  AgentOutput,
   AgentStep,
   TaskParams,
   TaskOutput,
