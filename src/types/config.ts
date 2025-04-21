@@ -57,6 +57,8 @@ export interface MCPConfig {
 export interface HyperAgentConfig {
   customActions?: Array<AgentActionDefinition>;
 
+  browserProvider?: "Local" | "Hyperbrowser";
+
   debug?: boolean;
   llm?: BaseChatModel;
 

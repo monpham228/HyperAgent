@@ -76,14 +76,20 @@ Hyperagent supports both synchronous and asynchronous task execution:
 
 ```typescript
 // Synchronous execution
-const result = await agent.executeTask("Extract data from the current page");
+const result = await agent.executeTask(
+  "Tell me if there's any steps I have to take care of a toyger cat."
+);
 
 // Asynchronous execution with control
-const task = await agent.executeTaskAsync("Long running scraping task");
+const task = await agent.executeTaskAsync(
+  "Tell me if there's any steps I have to take care of a tiger."
+);
 await task.pause(); // Pause the task
 await task.resume(); // Resume the task
 await task.cancel(); // Cancel the task
 ```
+
+**Note**: In async mode, pause will only pause the task after the current step is completed.
 
 ### Multi-Page Management
 
@@ -93,8 +99,14 @@ const page1 = await agent.newPage();
 const page2 = await agent.newPage();
 
 // Execute tasks on specific pages
-await page1.ai("Navigate to google.com");
-await page2.ai("Navigate to github.com");
+const page1Response = await page1.ai(
+  "Go to google.com/travel/explore and set the starting location to New York. Then, return to me the first recommended destination that shows up. Return to me only the name of the location."
+);
+const page2Response = await page2.ai(
+  `I want to plan a trip to ${page1Response.output}. Recommend me places to visit there.`
+);
+
+console.log(page2Response.output);
 
 // Get all active pages
 const pages = await agent.getPages();
@@ -130,7 +142,7 @@ console.log(result.output)
 
 ### Using Different LLM Providers
 
-Hyperagent supports various LLM providers:
+Hyperagent supports multiple LLM providers. A provider can be anything that extends to the Langchain `BaseChatModel` class.
 
 ```typescript
 // Using OpenAI
@@ -150,27 +162,134 @@ const agent = new HyperAgent({
 });
 ```
 
-### Custom Actions
+### MCP Support
 
-Extend Hyperagent's capabilities with custom actions:
+HyperAgent functions as a fully functional MCP client.
+
+Here is an example which reads from wikipedia, and inserts information into a google sheet using the composio Google Sheet MCP.
 
 ```typescript
-const customAction = {
-  type: "CUSTOM_ACTION",
-  description: "Performs a custom operation",
-  parameters: {
-    param1: { type: "string" },
-    param2: { type: "number" },
-  },
-  execute: async (params) => {
-    // Custom implementation
+const agent = new HyperAgent({
+  llm: llm,
+  debug: true,
+});
+
+await agent.initializeMCPClient({
+  servers: [
+    {
+      command: "npx",
+      args: [
+        "@composio/mcp@latest",
+        "start",
+        "--url",
+        "https://mcp.composio.dev/googlesheets/...",
+      ],
+      env: {
+        npm_config_yes: "true",
+      },
+    },
+  ],
+});
+
+const response = await agent.executeTask(
+  "Go to https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_population and get the data on the top 5 most populous states from the table. Then insert that data into a google sheet. You may need to first check if there is an active connection to google sheet, and if there isn't connect to it and present me with the link to sign in. "
+);
+
+console.log(response);
+```
+
+### Custom Actions
+
+HyperAgent's capabilities can be extended with custom actions. Custom actions require 3 things
+
+- type: Name of the action. Should be something descriptive about the action.
+- actionParams: A zod object describing the parameters that the action may consume
+- run: A function that takes in a context, and the params for the action and produces a result based on the params.
+
+Here is an example that performs a search using Exa
+
+```typescript
+const exaInstance = new Exa(process.env.EXA_API_KEY);
+
+export const RunSearchActionDefinition: AgentActionDefinition = {
+  type: "perform_search",
+  actionParams: z.object({
+    search: z
+      .string()
+      .describe(
+        "The search query for something you want to search about. Keep the search query concise and to-the-point."
+      ),
+  }).describe("Search and return the results for a given query.");,
+  run: async function (
+    ctx: ActionContext,
+    params: z.infer<typeof searchSchema>
+  ): Promise<ActionOutput> {
+    const results = (await exaInstance.search(params.search, {})).results
+      .map(
+        (res) =>
+          `title: ${res.title} || url: ${res.url} || relevance: ${res.score}`
+      )
+      .join("\n");
+
+    return {
+      success: true,
+      message: `Succesfully performed search for query ${params.search}. Got results: \n${results}`,
+    };
   },
 };
 
 const agent = new HyperAgent({
-  customActions: [customAction],
+  "Search about the news for today in New York",
+  customActions: [RunSearchActionDefinition],
 });
 ```
+
+## Cloud Support
+
+HyperAgent is built with cloud deployments in mind, utilising Hyperbrowser to offer the best environment for running web agents.
+
+Configuring HyperAgent for web deployments can be done simply using
+
+```typescript
+const agent = new HyperAgent({
+  llm: llm,
+  debug: true,
+  // Set browserProvider to "Hyperbrowser"
+  browserProvider: "Hyperbrowser",
+});
+
+const response = await agent.executeTask(
+  "Go to hackernews, and list me the 5 most recent article titles"
+);
+
+console.log(response);
+```
+
+### Further Configuring Hyperbrowser
+
+HyperAgent also supports customising the Hyperbrowser session. The session parameters can be provided in the `hyperbrowserConfig` param passed when initializing HyperAgent
+
+```typescript
+const agent = new HyperAgent({
+  llm: llm,
+  debug: true,
+  browserProvider: "Hyperbrowser",
+  hyperbrowserConfig: {
+    hyperbrowserSessionOptions: {
+      useProxy: true,
+      proxyCountry: "AU",
+    },
+  },
+});
+
+const response = await agent.executeTask(
+  "Go to hackernews, and list me the 5 most recent article titles"
+);
+
+console.log(response);
+```
+
+A list of all parameters supported can be seen on our [docs](https://docs.hyperbrowser.ai/reference/sdks/node/sessions)
 
 ## Contributing
 
