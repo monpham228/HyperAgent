@@ -50,7 +50,7 @@
  * ## Running the Example
  *
  * ```
- * yarn ts-node tsconfig-paths/register examples/mcp/google-sheets/best-buy-reviews.ts <your-mcp-url>
+ * yarn ts-node examples/mcp/google-sheets/best-buy-reviews.ts <your-mcp-url>
  * ```
  *
  * ## Example Output
