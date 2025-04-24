@@ -26,6 +26,31 @@ const imageBitmapToPngDataUrl = (bitmap: ImageBitmap): string => {
   }
 };
 
+// --- Start new function definition ---
+const getElementTextContent = (el: HTMLElement): string => {
+  const tagName = el.tagName.toLowerCase();
+
+  if (tagName === "input") {
+    const inputElement = el as HTMLInputElement;
+    let labelText: string | null = null;
+
+    // Try finding label by "for" attribute
+    if (inputElement.id) {
+      const label = document.querySelector(`label[for="${inputElement.id}"]`);
+      if (label) {
+        labelText = label.textContent?.trim() || null;
+      }
+    }
+
+    // Use label text if found, otherwise use input value. Fallback to empty string if neither.
+    return labelText ?? inputElement.value?.trim() ?? "";
+  } else {
+    // Original logic for non-input elements
+    return el.textContent?.trim() || "";
+  }
+};
+// --- End new function definition ---
+
 export const buildDomView = (): DOMStateRaw => {
   const interactiveElements = findInteractiveElements();
 
@@ -79,7 +104,9 @@ export const buildDomView = (): DOMStateRaw => {
       }
     });
 
-    const textContent = el.textContent?.trim() || "";
+    // Use the helper function to get text content
+    const textContent = getElementTextContent(el);
+
     const indexPrefix = `[${element.highlightIndex}]`;
     const elementString = `${indexPrefix}<${tagName}${attributes}>${textContent.replace(/\s+/g, " ")}</${tagName}>`;
     domRepresentation.push(elementString);

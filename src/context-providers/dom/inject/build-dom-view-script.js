@@ -51,6 +51,7 @@
     "aria-label",
     "placeholder",
     "value",
+    "checked",
     "alt",
     "aria-expanded"
   ];
@@ -433,6 +434,22 @@
       bitmap.close();
     }
   };
+  var getElementTextContent = (el) => {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === "input") {
+      const inputElement = el;
+      let labelText = null;
+      if (inputElement.id) {
+        const label = document.querySelector(`label[for="${inputElement.id}"]`);
+        if (label) {
+          labelText = label.textContent?.trim() || null;
+        }
+      }
+      return labelText ?? inputElement.value?.trim() ?? "";
+    } else {
+      return el.textContent?.trim() || "";
+    }
+  };
   var buildDomView = () => {
     const interactiveElements = findInteractiveElements();
     const screenBitmap = renderHighlightsOffscreen(
@@ -475,7 +492,7 @@
           attributes += ` ${attr.name}="${attr.value}"`;
         }
       });
-      const textContent = el.textContent?.trim() || "";
+      const textContent = getElementTextContent(el);
       const indexPrefix = `[${element.highlightIndex}]`;
       const elementString = `${indexPrefix}<${tagName}${attributes}>${textContent.replace(/\s+/g, " ")}</${tagName}>`;
       domRepresentation.push(elementString);
