@@ -33,11 +33,13 @@ program
   .command("run", { isDefault: true })
   .description("Run the interactive CLI")
   .option("-d, --debug", "Enable debug mode")
+  .option("-c, --command <task description>", "Command to run")
   .option("--hyperbrowser", "Use Hyperbrowser for the browser provider")
   .action(async function () {
     const options = this.opts();
     const debug = (options.debug as boolean) || false;
     const useHB = (options.hyperbrowser as boolean) || false;
+    let taskDescription = (options.command as string) || undefined;
 
     console.log(chalk.blue("HyperAgent CLI"));
     currentSpinner.info(
@@ -185,11 +187,12 @@ program
           process.exit(0);
         }
       };
-
-      const taskDescription = await inquirer.input({
-        message: "What should HyperAgent do for you today?",
-        required: true,
-      });
+      if (!taskDescription) {
+        taskDescription = await inquirer.input({
+          message: "What should HyperAgent do for you today?",
+          required: true,
+        });
+      }
 
       if (useHB && !debug) {
         await browser.initBrowser();
