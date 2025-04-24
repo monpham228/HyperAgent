@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import "dotenv/config";
+import fs from "node:fs";
 import { Command } from "commander";
 import * as inquirer from "@inquirer/prompts";
 import ora from "ora";
@@ -34,12 +35,16 @@ program
   .description("Run the interactive CLI")
   .option("-d, --debug", "Enable debug mode")
   .option("-c, --command <task description>", "Command to run")
+  .option("-f, --file <file path>", "Path to a file containing a command")
+  .option("-m, --mcp <mcp config file>", "Path to a file containing mcp config")
   .option("--hyperbrowser", "Use Hyperbrowser for the browser provider")
   .action(async function () {
     const options = this.opts();
     const debug = (options.debug as boolean) || false;
     const useHB = (options.hyperbrowser as boolean) || false;
     let taskDescription = (options.command as string) || undefined;
+    const filePath = (options.file as string) || undefined;
+    const mcpPath = (options.mcp as string) || undefined;
 
     console.log(chalk.blue("HyperAgent CLI"));
     currentSpinner.info(
@@ -62,7 +67,7 @@ program
         process.env.HYPERBROWSER_API_KEY = apiKey; // Set it for the current process
       }
 
-      const browser = new HyperAgent({
+      const agent = new HyperAgent({
         debug: debug,
         browserProvider: useHB ? "Hyperbrowser" : "Local",
       });
@@ -101,7 +106,7 @@ program
           }
           console.log("\nShutting down HyperAgent");
           try {
-            await browser.closeAgent();
+            await agent.closeAgent();
             process.exit(0);
           } catch (err) {
             console.error("Error during shutdown:", err);
@@ -125,8 +130,8 @@ program
         const actions = actionsList
           .map((action, index, array) =>
             index < array.length - 1
-              ? `  ├── [${action.output.success ? chalk.yellow(action.action.type) : chalk.red(action.action.type)}] ${action.output.success ? browser.pprintAction(action.action as ActionType) : chalk.red(action.output.message)}`
-              : `  └── [${action.output.success ? chalk.yellow(action.action.type) : chalk.red(action.action.type)}] ${action.output.success ? browser.pprintAction(action.action as ActionType) : chalk.red(action.output.message)}`
+              ? `  ├── [${action.output.success ? chalk.yellow(action.action.type) : chalk.red(action.action.type)}] ${action.output.success ? agent.pprintAction(action.action as ActionType) : chalk.red(action.output.message)}`
+              : `  └── [${action.output.success ? chalk.yellow(action.action.type) : chalk.red(action.action.type)}] ${action.output.success ? agent.pprintAction(action.action as ActionType) : chalk.red(action.output.message)}`
           )
           .join("\n");
 
@@ -141,8 +146,8 @@ program
       const debugAgentOutput = (params: AgentOutput) => {
         const actions = params.actions.map((action, index, array) =>
           index < array.length - 1
-            ? `  ├── [${chalk.yellow(action.type)}] ${browser.pprintAction(action as ActionType)}`
-            : `  └── [${chalk.yellow(action.type)}] ${browser.pprintAction(action as ActionType)}`
+            ? `  ├── [${chalk.yellow(action.type)}] ${agent.pprintAction(action as ActionType)}`
+            : `  └── [${chalk.yellow(action.type)}] ${agent.pprintAction(action as ActionType)}`
         );
         currentSpinner.start(
           `[${chalk.yellow("task")}]: ${params.nextGoal}\n${actions.join("\n")}`
@@ -178,7 +183,7 @@ program
           process.stdin.setRawMode(true);
           process.stdin.resume();
 
-          task = await browser.executeTaskAsync(taskDescription, {
+          task = await agent.executeTaskAsync(taskDescription, {
             onStep: onStep,
             debugOnAgentOutput: debugAgentOutput,
             onComplete: onComplete,
@@ -188,19 +193,30 @@ program
         }
       };
       if (!taskDescription) {
-        taskDescription = await inquirer.input({
-          message: "What should HyperAgent do for you today?",
-          required: true,
-        });
+        if (filePath) {
+          taskDescription = (await fs.promises.readFile(filePath)).toString();
+        } else {
+          taskDescription = await inquirer.input({
+            message: "What should HyperAgent do for you today?",
+            required: true,
+          });
+        }
+      }
+
+      if (mcpPath) {
+        const mcpConfig = JSON.parse(
+          (await fs.promises.readFile(mcpPath)).toString()
+        );
+        await agent.initializeMCPClient({ servers: mcpConfig });
       }
 
       if (useHB && !debug) {
-        await browser.initBrowser();
-        const session = browser.getSession() as SessionDetail;
+        await agent.initBrowser();
+        const session = agent.getSession() as SessionDetail;
         console.log(`Hyperbrowser Live URL: ${session.liveUrl}\n`);
       }
 
-      task = await browser.executeTaskAsync(taskDescription, {
+      task = await agent.executeTaskAsync(taskDescription, {
         onStep: onStep,
         onComplete: onComplete,
         debugOnAgentOutput: debugAgentOutput,

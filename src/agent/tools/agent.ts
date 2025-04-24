@@ -44,6 +44,11 @@ const getActionSchema = (actions: Array<AgentActionDefinition>) => {
     z.object({
       type: z.nativeEnum([action.type] as unknown as z.EnumLike),
       params: action.actionParams,
+      actionDescription: z
+        .string()
+        .describe(
+          "Describe why you are performing this action and what you aim to perform with this action."
+        ),
     })
   );
   return z.union([zodDefs[0], zodDefs[1], ...zodDefs.splice(2)]);
