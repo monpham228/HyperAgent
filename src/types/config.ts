@@ -65,7 +65,7 @@ export interface HyperAgentConfig<T extends BrowserProviders = "Local"> {
   llm?: BaseChatModel;
 
   hyperbrowserConfig?: Omit<
-    ConstructorParameters<typeof HyperbrowserProvider>[0],
+    NonNullable<ConstructorParameters<typeof HyperbrowserProvider>[0]>,
     "debug"
   >;
   localConfig?: ConstructorParameters<typeof LocalBrowserProvider>[0];
