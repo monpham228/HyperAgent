@@ -43,7 +43,17 @@ npm install @hyperbrowser/agent
 yarn add @hyperbrowser/agent
 ```
 
-### Basic Usage
+### CLI
+
+```bash
+$ hyperagent-cli -c "Find a route from Miami to New Orleans, and provide the detailed route information."
+```
+
+<p align="center">
+  <img src="assets/flight-schedule.gif" alt="Hyperagent Demo"/>
+</p>
+
+### Library
 
 ```typescript
 import { HyperAgent } from "@hyperbrowser/agent";
@@ -68,7 +78,7 @@ console.log(result.output);
 await agent.closeAgent();
 ```
 
-## Cloud
+## ☁️ Cloud
 
 You can scale HyperAgent with cloud headless browsers using Hyperbrowser
 
