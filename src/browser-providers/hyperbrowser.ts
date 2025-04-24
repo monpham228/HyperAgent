@@ -9,9 +9,9 @@ import {
 import BrowserProvider from "@/types/browser-providers/types";
 
 export class HyperbrowserProvider extends BrowserProvider<SessionDetail> {
-  browserOptions: Omit<ConnectOverCDPOptions, "endpointURL"> | undefined;
-  hyperbrowserSessionOptions: CreateSessionParams | undefined;
-  hyperbrowserConfig: HyperbrowserConfig | undefined;
+  browserConfig: Omit<ConnectOverCDPOptions, "endpointURL"> | undefined;
+  sessionConfig: CreateSessionParams | undefined;
+  config: HyperbrowserConfig | undefined;
   browser: Browser | undefined;
   session: SessionDetail | undefined;
   hbClient: Hyperbrowser | undefined;
@@ -19,27 +19,25 @@ export class HyperbrowserProvider extends BrowserProvider<SessionDetail> {
 
   constructor(params?: {
     debug?: boolean;
-    browserOptions?: Omit<ConnectOverCDPOptions, "endpointURL">;
-    hyperbrowserSessionOptions?: CreateSessionParams;
-    hyperbrowserConfig?: HyperbrowserConfig;
+    browserConfig?: Omit<ConnectOverCDPOptions, "endpointURL">;
+    sessionConfig?: CreateSessionParams;
+    config?: HyperbrowserConfig;
   }) {
     super();
     this.debug = params?.debug ?? false;
-    this.browserOptions = params?.browserOptions;
-    this.hyperbrowserSessionOptions = params?.hyperbrowserSessionOptions;
-    this.hyperbrowserConfig = params?.hyperbrowserConfig;
+    this.browserConfig = params?.browserConfig;
+    this.sessionConfig = params?.sessionConfig;
+    this.config = params?.config;
   }
 
   async start(): Promise<Browser> {
-    const client = new Hyperbrowser(this.hyperbrowserConfig);
-    const session = await client.sessions.create(
-      this.hyperbrowserSessionOptions
-    );
+    const client = new Hyperbrowser(this.config);
+    const session = await client.sessions.create(this.sessionConfig);
     this.hbClient = client;
     this.session = session;
     this.browser = await chromium.connectOverCDP(
       session.wsEndpoint,
-      this.browserOptions
+      this.browserConfig
     );
 
     if (this.debug) {
