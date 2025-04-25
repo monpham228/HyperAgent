@@ -372,7 +372,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     if (!config || config.servers.length === 0) {
       return;
     }
-    this.mcpClient = new MCPClient();
+    this.mcpClient = new MCPClient(this.debug);
     try {
       for (const serverConfig of config.servers) {
         try {
@@ -407,7 +407,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     serverConfig: MCPServerConfig
   ): Promise<string | null> {
     if (!this.mcpClient) {
-      this.mcpClient = new MCPClient();
+      this.mcpClient = new MCPClient(this.debug);
     }
 
     try {

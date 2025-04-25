@@ -77,6 +77,7 @@ program
             async ({ message, kind, choices }): Promise<ActionOutput> => {
               const currentText = currentSpinner.text;
               try {
+                currentSpinner.stop();
                 currentSpinner.clear();
                 if (kind === "text_input") {
                   const response = await inquirer.input({

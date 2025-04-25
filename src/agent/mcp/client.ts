@@ -4,11 +4,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { Tool } from "@modelcontextprotocol/sdk/types";
 import { MCPServerConfig } from "@/types/config";
-import {
-  ActionContext,
-  ActionOutput,
-  AgentActionDefinition,
-} from "@/types";
+import { ActionContext, ActionOutput, AgentActionDefinition } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 
 interface ServerConnection {
@@ -22,8 +18,10 @@ interface ServerConnection {
 
 class MCPClient {
   private servers: Map<string, ServerConnection> = new Map();
-
-  constructor() {}
+  private debug: boolean;
+  constructor(debug: boolean = false) {
+    this.debug = debug;
+  }
 
   /**
    * Connect to an MCP server and register its tools
@@ -46,7 +44,11 @@ class MCPClient {
           throw new Error("SSE URL is required for SSE connection type");
         }
 
-        console.log(`Establishing SSE connection to ${serverConfig.sseUrl}...`);
+        if (this.debug) {
+          console.log(
+            `Establishing SSE connection to ${serverConfig.sseUrl}...`
+          );
+        }
 
         transport = new SSEClientTransport(
           new URL(serverConfig.sseUrl),
@@ -74,6 +76,8 @@ class MCPClient {
             ...((process.env ?? {}) as Record<string, string>),
             ...(serverConfig.env ?? {}),
           },
+          // Pipe stdin/stdout, ignore stderr
+          stderr: this.debug ? "inherit" : "ignore",
         });
       }
 
@@ -156,9 +160,10 @@ class MCPClient {
         tools: toolsMap,
         actions,
       });
-
-      console.log(`Connected to MCP server with ID: ${serverId}`);
-      console.log("Added tools:", Array.from(toolsMap.keys()));
+      if (this.debug) {
+        console.log(`Connected to MCP server with ID: ${serverId}`);
+        console.log("Added tools:", Array.from(toolsMap.keys()));
+      }
       return { serverId, actions };
     } catch (e) {
       console.error("Failed to connect to MCP server: ", e);
@@ -247,7 +252,9 @@ class MCPClient {
     if (server) {
       await server.transport.close();
       this.servers.delete(serverId);
-      console.log(`Disconnected from MCP server with ID: ${serverId}`);
+      if (this.debug) {
+        console.log(`Disconnected from MCP server with ID: ${serverId}`);
+      }
     }
   }
 
