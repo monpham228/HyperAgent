@@ -53,7 +53,7 @@ $ npx @hyperbrowser/agent -c "Find a route from Miami to New Orleans, and provid
   <img src="assets/flight-schedule.gif" alt="Hyperagent Demo"/>
 </p>
 
-The CLI supports a options for debugging or using hyperbrowser instead of a local browser
+The CLI supports options for debugging or using hyperbrowser instead of a local browser
 
 ```bash
 -d, --debug                       Enable debug mode
