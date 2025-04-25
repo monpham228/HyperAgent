@@ -46,12 +46,20 @@ yarn add @hyperbrowser/agent
 ### CLI
 
 ```bash
-$ hyperagent-cli -c "Find a route from Miami to New Orleans, and provide the detailed route information."
+$ npx @hyperbrowser/agent -c "Find a route from Miami to New Orleans, and provide the detailed route information."
 ```
 
 <p align="center">
   <img src="assets/flight-schedule.gif" alt="Hyperagent Demo"/>
 </p>
+
+The CLI supports a options for debugging or using hyperbrowser instead of a local browser
+
+```bash
+-d, --debug                       Enable debug mode
+-c, --command <task description>  Command to run
+--hyperbrowser                    Use Hyperbrowser for the browser provider
+```
 
 ### Library
 
