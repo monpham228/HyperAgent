@@ -10,7 +10,9 @@ import readline from "readline";
 import { zipWith } from "lodash";
 
 import { HyperAgent } from "@/agent";
+import { UserInteractionAction } from "@/custom-actions";
 import {
+  ActionOutput,
   ActionType,
   AgentOutput,
   AgentStep,
@@ -70,6 +72,69 @@ program
       const agent = new HyperAgent({
         debug: debug,
         browserProvider: useHB ? "Hyperbrowser" : "Local",
+        customActions: [
+          UserInteractionAction(
+            async ({ message, kind, choices }): Promise<ActionOutput> => {
+              const currentText = currentSpinner.text;
+              try {
+                currentSpinner.clear();
+                if (kind === "text_input") {
+                  const response = await inquirer.input({
+                    message,
+                    required: true,
+                  });
+                  return {
+                    success: true,
+                    message: `User responded with the text: "${response}"`,
+                  };
+                } else if (kind === "confirm") {
+                  const response = await inquirer.confirm({
+                    message,
+                  });
+                  return {
+                    success: true,
+                    message: `User responded with "${response}"`,
+                  };
+                } else if (kind === "password") {
+                  console.warn(
+                    chalk.red(
+                      "Providing passwords to LLMs can be dangerous. Passwords are passed in plain-text to the LLM and can be read by other people."
+                    )
+                  );
+                  const response = await inquirer.password({
+                    message,
+                  });
+                  return {
+                    success: true,
+                    message: `User responded with password: ${response}`,
+                  };
+                } else {
+                  if (!choices) {
+                    return {
+                      success: false,
+                      message:
+                        "For choices kind of user interaction, an array of choices is required.",
+                    };
+                  } else {
+                    const response = await inquirer.select({
+                      message,
+                      choices: choices.map((option) => ({
+                        value: option,
+                        name: option,
+                      })),
+                    });
+                    return {
+                      success: true,
+                      message: `User selected the choice: ${response}`,
+                    };
+                  }
+                }
+              } finally {
+                currentSpinner.start(currentText);
+              }
+            }
+          ),
+        ],
       });
 
       let task: Task;

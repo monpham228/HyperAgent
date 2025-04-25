@@ -87,6 +87,10 @@
     "./types": {
       "types": "./dist/types/index.d.ts",
       "default": "./dist/types/index.js"
+    },
+    "./custom-actions": {
+      "types": "./dist/custom-actions/index.d.ts",
+      "default": "./dist/custom-actions/index.js"
     }
   },
   "typesVersions": {
@@ -96,6 +100,9 @@
       ],
       "types": [
         "./dist/types/index.d.ts"
+      ],
+      "./custom-actions": [
+        "./dist/custom-actions/index.d.ts"
       ]
     }
   }
