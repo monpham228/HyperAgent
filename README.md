@@ -69,6 +69,7 @@ The CLI supports options for debugging or using hyperbrowser instead of a local 
 ```typescript
 import { HyperAgent } from "@hyperbrowser/agent";
 import { ChatOpenAI } from "@langchain/openai";
+import { z } from "zod";
 
 // Initialize the agent
 const agent = new HyperAgent({
@@ -82,8 +83,25 @@ const agent = new HyperAgent({
 const result = await agent.executeTask(
   "Navigate to amazon.com, search for 'laptop', and extract the prices of the first 5 results"
 );
-
 console.log(result.output);
+
+// Use page.ai and page.extract
+const page = await agent.newPage();
+await page.goto("https://flights.google.com", { waitUntil: "load" });
+await page.ai("search for flights from Rio to LAX from July 16 to July 22");
+const res = await page.extract(
+  "give me the flight options",
+  z.object({
+    flights: z.array(
+      z.object({
+        price: z.number(),
+        departure: z.string(),
+        arrival: z.string(),
+      })
+    ),
+  })
+);
+console.log(res);
 
 // Clean up
 await agent.closeAgent();
