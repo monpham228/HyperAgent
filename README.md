@@ -23,13 +23,16 @@
 
 ## Overview
 
-Hyperagent is Playwright supercharged with AI.
+Hyperagent is Playwright supercharged with AI. No more brittle scripts, just powerful natural language commands.
+Just looking for scalable headless browsers or scraping infra? Go to [Hyperbrowser](https://app.hyperbrowser.ai/) to get started for free!
 
 ### Features
 
-- 🤖 **AI Commands**: Simple APIs like `page.ai()` and `executeTask()` for any AI automation
-- 🛡️ **Stealth Mode**: Built-in patches to avoid being detcted
+- 🤖 **AI Commands**: Simple APIs like `page.ai()`, `page.extract()` and `executeTask()` for any AI automation
 - ⚡ **Fallback to Regular Playwright**: Use regular Playwright when AI isn't needed
+- 🥷 **Stealth Mode** – Avoid detection with built-in anti-bot patches
+- ☁️ **Cloud Ready** – Instantly scale to hundreds of sessions via [Hyperbrowser](https://app.hyperbrowser.ai/)
+- 🔌 **MCP Client** – Connect to tools like Composio for full workflows (e.g. writing web data to Google Sheets)
 
 ## Quick Start
 
@@ -108,27 +111,6 @@ await agent.closeAgent();
 ```
 
 ## Usage Guide
-
-### Task Execution Modes
-
-Hyperagent supports both synchronous and asynchronous task execution:
-
-```typescript
-// Synchronous execution
-const result = await agent.executeTask(
-  "Tell me if there's any steps I have to take care of a toyger cat."
-);
-
-// Asynchronous execution with control
-const task = await agent.executeTaskAsync(
-  "Tell me if there's any steps I have to take care of a tiger."
-);
-await task.pause(); // Pause the task
-await task.resume(); // Resume the task
-await task.cancel(); // Cancel the task
-```
-
-**Note**: In async mode, pause will only pause the task after the current step is completed.
 
 ### Multi-Page Management
 
@@ -290,33 +272,6 @@ const agent = new HyperAgent({
 });
 ```
 
-### Further Configuring Hyperbrowser
-
-HyperAgent also supports customising the Hyperbrowser session. The session parameters can be provided in the `hyperbrowserConfig` param passed when initializing HyperAgent
-
-```typescript
-const agent = new HyperAgent({
-  llm: llm,
-  debug: true,
-  browserProvider: "Hyperbrowser",
-  hyperbrowserConfig: {
-    hyperbrowserSessionOptions: {
-      useProxy: true,
-      proxyCountry: "AU",
-    },
-  },
-});
-
-const response = await agent.executeTask(
-  "Go to hackernews, and list me the 5 most recent article titles"
-);
-
-console.log(response);
-await agent.closeAgent();
-```
-
-A list of all parameters supported can be seen in our [docs](https://docs.hyperbrowser.ai/reference/api-reference/sessions#post-api-session)
-
 ## Contributing
 
 We welcome contributions to Hyperagent! Here's how you can help:
@@ -326,10 +281,6 @@ We welcome contributions to Hyperagent! Here's how you can help:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
