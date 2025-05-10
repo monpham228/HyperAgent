@@ -2,16 +2,16 @@ import { chromium, Browser, LaunchOptions, ConnectOptions } from "playwright";
 import BrowserProvider from "@/types/browser-providers/types";
 
 export class LocalBrowserProvider extends BrowserProvider<Browser> {
-  options: (Omit<Omit<LaunchOptions, "headless">, "channel"> & { wsEndpoint?: string,args? : []}) | ConnectOptions  & { wsEndpoint?: string,args? : []} | undefined;
+  options: (Omit<Omit<LaunchOptions, "headless">, "channel"> & { endpointURL?: string,args? : []}) | ConnectOptions  & { endpointURL?: string,args? : []} | undefined;
   session: Browser | undefined;
-  constructor(options?: Omit<Omit<LaunchOptions, "headless">, "channel"> & { wsEndpoint?: string,args? : []}) {
+  constructor(options?: Omit<Omit<LaunchOptions, "headless">, "channel"> & { endpointURL?: string,args? : []}) {
     super();
     this.options = options;
   }
   async start(): Promise<Browser> {
     
-    if (this.options && 'wsEndpoint' in this.options && this.options.wsEndpoint) {
-      const browser = await chromium.connectOverCDP(this.options.wsEndpoint,{
+    if (this.options && 'endpointURL' in this.options && this.options.endpointURL) {
+      const browser = await chromium.connectOverCDP(this.options.endpointURL,{
         ...this.options
       });
       this.session = browser;
