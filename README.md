@@ -130,6 +130,41 @@ await agent.closeAgent();
 
 ## Usage Guide
 
+### Config Browser with playwright
+
+You can configure the browser with custom options when initializing HyperAgent. The `options` parameter allows you to set various browser launch options, excluding `headless` and `channel`. Additionally, you can specify a `wsEndpoint` for connecting to a remote browser and provide custom `args`.
+
+```typescript
+import { HyperAgent } from "@hyperbrowser/agent";
+
+const agent = new HyperAgent({
+  options: {
+    wsEndpoint: "ws://localhost:3000", // Connect to a remote browser
+    args: ["--no-sandbox", "--disable-setuid-sandbox"], // Custom browser arguments
+    slowMo: 50, // Slow down operations for debugging
+  },
+});
+
+// Use the agent as usual
+const result = await agent.executeTask(
+  "Navigate to example.com and extract the page title"
+);
+console.log(result.output);
+
+// Clean up
+await agent.closeAgent();
+```
+
+### Available Options
+
+- `wsEndpoint` (optional): WebSocket endpoint for connecting to a remote browser.
+- `args` (optional): Array of Chromium command-line switches.
+- Other options from `LaunchOptions` (excluding `headless` and `channel`).
+
+Refer to the [Playwright documentation](https://playwright.dev/docs/api/class-browsertype#browser-type-launch) for more details on available options.
+```
+
+
 ### Multi-Page Management
 
 ```typescript

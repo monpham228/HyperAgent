@@ -11,7 +11,7 @@ export class LocalBrowserProvider extends BrowserProvider<Browser> {
   async start(): Promise<Browser> {
     
     if (this.options && 'wsEndpoint' in this.options && this.options.wsEndpoint) {
-      const browser = await chromium.connect(this.options.wsEndpoint,{
+      const browser = await chromium.connectOverCDP(this.options.wsEndpoint,{
         ...this.options
       });
       this.session = browser;
