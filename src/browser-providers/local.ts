@@ -1,15 +1,23 @@
-import { chromium, Browser, LaunchOptions } from "playwright";
+import { chromium, Browser, LaunchOptions, ConnectOptions } from "playwright";
 import BrowserProvider from "@/types/browser-providers/types";
 
 export class LocalBrowserProvider extends BrowserProvider<Browser> {
-  options: Omit<Omit<LaunchOptions, "headless">, "channel"> | undefined;
+  options: (Omit<Omit<LaunchOptions, "headless">, "channel"> & { wsEndpoint?: string,args? : []}) | ConnectOptions  & { wsEndpoint?: string,args? : []} | undefined;
   session: Browser | undefined;
-  constructor(options?: Omit<Omit<LaunchOptions, "headless">, "channel">) {
+  constructor(options?: Omit<Omit<LaunchOptions, "headless">, "channel"> & { wsEndpoint?: string,args? : []}) {
     super();
     this.options = options;
   }
   async start(): Promise<Browser> {
-    const launchArgs = this.options?.args ?? [];
+    
+    if (this.options && 'wsEndpoint' in this.options && this.options.wsEndpoint) {
+      const browser = await chromium.connect(this.options.wsEndpoint,{
+        ...this.options
+      });
+      this.session = browser;
+      return this.session;
+    }
+    const launchArgs = this.options?.args || [];
     const browser = await chromium.launch({
       ...(this.options ?? {}),
       channel: "chrome",
