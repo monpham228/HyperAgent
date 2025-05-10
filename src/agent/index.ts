@@ -1,6 +1,7 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI } from "@langchain/openai";
 import { Browser, BrowserContext, Page } from "playwright";
+import { Browser as PuppeteerBrowser, BrowserContext as PuppeteerBrowserContext, Page as PuppeteerPage } from "puppeteer";
 import { v4 as uuidv4 } from "uuid";
 
 import {
@@ -27,6 +28,9 @@ import {
 import {
   HyperbrowserProvider,
   LocalBrowserProvider,
+  PlaywrightBrowserProvider,
+  PuppeteerBrowserProvider,
+
 } from "../browser-providers";
 import { HyperagentError } from "./error";
 import { MCPClient } from "./mcp/client";
@@ -34,7 +38,7 @@ import { runAgentTask } from "./tools/agent";
 import { HyperPage, HyperVariable } from "@/types/agent/types";
 import { z } from "zod";
 
-export class HyperAgent<T extends BrowserProviders = "Local"> {
+export class HyperAgent<T extends BrowserProviders = "Playwright"> {
   private llm: BaseChatModel;
   private tasks: Record<string, TaskState> = {};
   private tokenLimit = 128000;
@@ -46,9 +50,9 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
   private browserProviderType: T;
   private actions: Array<AgentActionDefinition> = [...DEFAULT_ACTIONS];
 
-  public browser: Browser | null = null;
-  public context: BrowserContext | null = null;
-  private _currentPage: Page | null = null;
+  public browser: Browser | PuppeteerBrowser | null = null;
+  public context: BrowserContext | PuppeteerBrowserContext | null = null;
+  private _currentPage: Page | PuppeteerPage | null = null;
   private _variables: Record<string, HyperVariable> = {};
 
   public get currentPage(): HyperPage | null {
@@ -76,15 +80,15 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     } else {
       this.llm = params.llm;
     }
-    this.browserProviderType = (params.browserProvider ?? "Local") as T;
+    this.browserProviderType = (params.browserProvider ?? "Playwright") as T;
 
     this.browserProvider = (
       this.browserProviderType === "Hyperbrowser"
         ? new HyperbrowserProvider({
-            ...(params.hyperbrowserConfig ?? {}),
-            debug: params.debug,
-          })
-        : new LocalBrowserProvider(params.localConfig)
+          ...(params.hyperbrowserConfig ?? {}),
+          debug: params.debug,
+        })
+        : (this.browserProviderType === "Puppeteer" ? new PuppeteerBrowserProvider(params.localConfig as any) : new PlaywrightBrowserProvider(params.localConfig as any))
     ) as T extends "Hyperbrowser" ? HyperbrowserProvider : LocalBrowserProvider;
 
     if (params.customActions) {
@@ -98,46 +102,55 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
    *  This is just exposed as a utility function. You don't need to call it explicitly.
    * @returns A reference to the current Playwright browser instance.
    */
-  public async initBrowser(): Promise<Browser> {
+  public async initBrowser(): Promise<Browser | PuppeteerBrowser> {
     if (!this.browser) {
-      this.browser = await this.browserProvider.start();
-      this.context = await this.browser.newContext({
-        viewport: null,
-      });
+      if (this.browserProviderType === "Playwright") {
+        this.browser = await this.browserProvider.start() as Browser;
+        this.context = await this.browser.newContext({
+          viewport: null,
 
-      // Inject script to track event listeners
-      await this.context.addInitScript(() => {
-        // TODO: Check this list of events
-        const interactiveEvents = new Set([
-          "click",
-          "mousedown",
-          "mouseup",
-          "keydown",
-          "keyup",
-          "keypress",
-          "submit",
-          "change",
-          "input",
-          "focus",
-          "blur",
-        ]); // Add more events as needed
+        });
 
-        const originalAddEventListener = Element.prototype.addEventListener;
-        Element.prototype.addEventListener = function (
-          type: string,
-          listener: EventListenerOrEventListenerObject,
-          options?: boolean | AddEventListenerOptions
-        ) {
-          if (interactiveEvents.has(type.toLowerCase())) {
-            this.setAttribute("data-has-interactive-listener", "true");
-          }
-          originalAddEventListener.call(this, type, listener, options);
-        };
-      });
+        // Inject script to track event listeners
+        await this.context.addInitScript(() => {
+          // TODO: Check this list of events
+          const interactiveEvents = new Set([
+            "click",
+            "mousedown",
+            "mouseup",
+            "keydown",
+            "keyup",
+            "keypress",
+            "submit",
+            "change",
+            "input",
+            "focus",
+            "blur",
+          ]); // Add more events as needed
 
-      return this.browser;
+          const originalAddEventListener = Element.prototype.addEventListener;
+          Element.prototype.addEventListener = function (
+            type: string,
+            listener: EventListenerOrEventListenerObject,
+            options?: boolean | AddEventListenerOptions
+          ) {
+            if (interactiveEvents.has(type.toLowerCase())) {
+              this.setAttribute("data-has-interactive-listener", "true");
+            }
+            originalAddEventListener.call(this, type, listener, options);
+          };
+        });
+
+        return this.browser;
+      } else if (this.browserProviderType === "Puppeteer") {
+        this.browser = await this.browserProvider.start() as PuppeteerBrowser;
+        // Inject script to track event listeners
+        // Inject script to track event listeners
+        return this.browser;
+      }
     }
-    return this.browser;
+
+    return this.browser as any;
   }
 
   /**
@@ -204,7 +217,14 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     if (!this.context) {
       throw new HyperagentError("No context found");
     }
-    return this.context.pages().map(this.setupPage.bind(this), this);
+    if (this.browserProviderType === "Puppeteer") {
+      const _context = this.context as PuppeteerBrowserContext;
+      const pages = await _context.pages();
+      return pages .map(this.setupPage.bind(this), this);
+    } else {
+      const _context = this.context as BrowserContext;
+      return _context.pages().map(this.setupPage.bind(this), this);
+    }
   }
 
   /**
@@ -307,7 +327,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
   public async executeTaskAsync(
     task: string,
     params?: TaskParams,
-    initPage?: Page
+    initPage?: Page | PuppeteerPage
   ): Promise<Task> {
     const taskId = uuidv4();
     const page = initPage || (await this.getCurrentPage());
@@ -347,7 +367,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
   public async executeTask(
     task: string,
     params?: TaskParams,
-    initPage?: Page
+    initPage?: Page | PuppeteerPage
   ): Promise<TaskOutput> {
     const taskId = uuidv4();
     const page = initPage || (await this.getCurrentPage());
@@ -544,7 +564,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     return session;
   }
 
-  private setupPage(page: Page): HyperPage {
+  private setupPage(page: Page | PuppeteerPage): HyperPage {
     const hyperPage = page as HyperPage;
     hyperPage.ai = (task: string, params?: TaskParams) =>
       this.executeTask(task, params, page);

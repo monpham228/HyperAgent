@@ -1,7 +1,8 @@
 import { AgentStep } from "@/types";
 import { BaseMessageLike } from "@langchain/core/messages";
 import { Page } from "playwright";
-import { getScrollInfo } from "./utils";
+import { Page as PuppeteerPage } from "puppeteer";
+import { getScrollInfo, getScrollInfoPup } from "./utils";
 import { retry } from "@/utils/retry";
 import { DOMState } from "@/context-providers/dom/types";
 import { HyperVariable } from "@/types/agent/types";
@@ -10,7 +11,7 @@ export const buildAgentStepMessages = async (
   baseMessages: BaseMessageLike[],
   steps: AgentStep[],
   task: string,
-  page: Page,
+  page: Page | PuppeteerPage,
   domState: DOMState,
   screenshot: string,
   variables: HyperVariable[]
@@ -64,7 +65,14 @@ export const buildAgentStepMessages = async (
   });
 
   // Add page screenshot section
-  const scrollInfo = await retry({ func: () => getScrollInfo(page) });
+  const scrollInfo = await retry({
+    func: () => {
+      if (page instanceof PuppeteerPage) {
+        return getScrollInfoPup(page);
+      }
+      return getScrollInfo(page)
+    }
+  });
   messages.push({
     role: "user",
     content: [

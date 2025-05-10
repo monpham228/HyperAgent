@@ -7,7 +7,7 @@ import {
   ActionType,
   AgentActionDefinition,
 } from "@/types";
-import { getDom } from "@/context-providers/dom";
+import { getDom, getDomPuppeteer } from "@/context-providers/dom";
 import { retry } from "@/utils/retry";
 import { sleep } from "@/utils/sleep";
 
@@ -29,8 +29,9 @@ import { Page } from "playwright";
 import { ActionNotFoundError } from "../actions";
 import { AgentCtx } from "./types";
 import sharp from "sharp";
+import { Page as PuppeteerPage } from "puppeteer";
 
-const compositeScreenshot = async (page: Page, overlay: string) => {
+const compositeScreenshot = async (page: Page | PuppeteerPage, overlay: string) => {
   const screenshot = await page.screenshot();
   const responseBuffer = await sharp(screenshot)
     .composite([{ input: Buffer.from(overlay, "base64") }])
@@ -69,7 +70,7 @@ const getActionHandler = (
 const runAction = async (
   action: ActionType,
   domState: DOMState,
-  page: Page,
+  page: Page | PuppeteerPage,
   ctx: AgentCtx
 ): Promise<ActionOutput> => {
   const actionCtx: ActionContext = {
@@ -147,7 +148,15 @@ export const runAgentTask = async (
     }
 
     // Get DOM State
-    const domState = await retry({ func: () => getDom(page) });
+    const domState = await retry({
+      func: () => {
+        if (page instanceof PuppeteerPage) {
+          return getDomPuppeteer(page);
+        }else {
+          return getDom(page)
+        }
+      }
+    });
     if (!domState) {
       console.log("no dom state, waiting 1 second.");
       await sleep(1000);

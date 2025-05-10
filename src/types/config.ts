@@ -4,6 +4,8 @@ import { AgentActionDefinition } from "./agent/actions/types";
 import {
   HyperbrowserProvider,
   LocalBrowserProvider,
+  PlaywrightBrowserProvider,
+  PuppeteerBrowserProvider,
 } from "@/browser-providers";
 
 export interface MCPServerConfig {
@@ -54,9 +56,9 @@ export interface MCPConfig {
   servers: MCPServerConfig[];
 }
 
-export type BrowserProviders = "Local" | "Hyperbrowser";
+export type BrowserProviders = "Hyperbrowser" | "Puppeteer" | "Playwright";
 
-export interface HyperAgentConfig<T extends BrowserProviders = "Local"> {
+export interface HyperAgentConfig<T extends BrowserProviders = "Playwright"> {
   customActions?: Array<AgentActionDefinition>;
 
   browserProvider?: T;
@@ -68,5 +70,5 @@ export interface HyperAgentConfig<T extends BrowserProviders = "Local"> {
     NonNullable<ConstructorParameters<typeof HyperbrowserProvider>[0]>,
     "debug"
   >;
-  localConfig?: ConstructorParameters<typeof LocalBrowserProvider>[0];
+  localConfig?: ConstructorParameters<typeof PlaywrightBrowserProvider | typeof PuppeteerBrowserProvider>[0];
 }

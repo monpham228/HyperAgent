@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ActionOutput } from "./actions/types";
 import { Page } from "playwright";
-
+import { Page as PuppeteerPage } from "puppeteer";
 export const AgentOutputFn = (
   actionsSchema: z.ZodUnion<readonly [z.AnyZodObject, ...z.AnyZodObject[]]>
 ) =>
@@ -73,7 +73,7 @@ export interface TaskState {
   id: string;
   task: string;
   status: TaskStatus;
-  startingPage: Page;
+  startingPage: Page | PuppeteerPage;
   steps: AgentStep[];
   output?: string;
   error?: string;

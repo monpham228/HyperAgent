@@ -1,4 +1,6 @@
 import { HyperbrowserProvider } from "./hyperbrowser";
-import { LocalBrowserProvider } from "./local";
+import { PlaywrightBrowserProvider } from "./local";
+import { PuppeteerBrowserProvider } from "./puppeteer";
 
-export { HyperbrowserProvider, LocalBrowserProvider };
+type LocalBrowserProvider = PlaywrightBrowserProvider | PuppeteerBrowserProvider;
+export { HyperbrowserProvider, PlaywrightBrowserProvider ,PuppeteerBrowserProvider,LocalBrowserProvider};
