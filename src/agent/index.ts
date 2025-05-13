@@ -33,6 +33,7 @@ import { MCPClient } from "./mcp/client";
 import { runAgentTask } from "./tools/agent";
 import { HyperPage, HyperVariable } from "@/types/agent/types";
 import { z } from "zod";
+import { ErrorEmitter } from "@/utils";
 
 export class HyperAgent<T extends BrowserProviders = "Local"> {
   private llm: BaseChatModel;
@@ -50,10 +51,11 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
   public context: BrowserContext | null = null;
   private _currentPage: Page | null = null;
   private _variables: Record<string, HyperVariable> = {};
+  private errorEmitter: ErrorEmitter;
 
   public get currentPage(): HyperPage | null {
     if (this._currentPage) {
-      return this.setupPage(this._currentPage);
+      return this.setupHyperPage(this._currentPage);
     }
     return null;
   }
@@ -92,6 +94,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     }
 
     this.debug = params.debug ?? false;
+    this.errorEmitter = new ErrorEmitter();
   }
 
   /**
@@ -205,7 +208,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     if (!this.context) {
       throw new HyperagentError("No context found");
     }
-    return this.context.pages().map(this.setupPage.bind(this), this);
+    return this.context.pages().map(this.setupHyperPage.bind(this), this);
   }
 
   /**
@@ -220,7 +223,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
       throw new HyperagentError("No context found");
     }
     const page = await this.context.newPage();
-    return this.setupPage(page);
+    return this.setupHyperPage(page);
   }
 
   /**
@@ -260,7 +263,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     if (!this.currentPage || this.currentPage.isClosed()) {
       this._currentPage = await this.context.newPage();
 
-      return this.setupPage(this._currentPage);
+      return this.setupHyperPage(this._currentPage);
     }
     return this.currentPage;
   }
@@ -295,6 +298,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
         }
         return taskState.status;
       },
+      emitter: this.errorEmitter,
     };
   }
 
@@ -331,9 +335,18 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
       },
       taskState,
       params
-    ).catch((error) => {
-      taskState.status = TaskStatus.FAILED;
-      taskState.error = error.message;
+    ).catch((error: Error) => {
+      // Retrieve the correct state to update
+      const failedTaskState = this.tasks[taskId];
+      if (failedTaskState) {
+        failedTaskState.status = TaskStatus.FAILED;
+        failedTaskState.error = error.message;
+        // Emit error on the central emitter, including the taskId
+        this.errorEmitter.emit("error", error);
+      } else {
+        // Fallback if task state somehow doesn't exist
+        console.error(`Task state ${taskId} not found during error handling.`);
+      }
     });
     return this.getTaskControl(taskId);
   }
@@ -545,7 +558,7 @@ export class HyperAgent<T extends BrowserProviders = "Local"> {
     return session;
   }
 
-  private setupPage(page: Page): HyperPage {
+  private setupHyperPage(page: Page): HyperPage {
     const hyperPage = page as HyperPage;
     hyperPage.ai = (task: string, params?: TaskParams) =>
       this.executeTask(task, params, page);
